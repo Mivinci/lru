@@ -4,7 +4,7 @@ import "container/list"
 
 type Cache struct {
 	cap   int
-	Evict func(interface{}, interface{})
+	Evict func(k interface{}, v interface{})
 	l     *list.List
 	cache map[interface{}]*list.Element
 }
@@ -94,4 +94,13 @@ func (c *Cache) Clear() {
 	}
 	c.l = nil
 	c.cache = nil
+}
+
+func (c *Cache) Walk(fn func(k interface{}, v interface{}) error) error {
+	for k, v := range c.cache {
+		if err := fn(k, v.Value.(*entry).value); err != nil {
+			return err
+		}
+	}
+	return nil
 }
